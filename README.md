@@ -67,11 +67,11 @@ decided by `bump --gates` (never both):
 | Gated, on default, clean, tagged | refuses "bump rides a feature PR", names `--standalone` |
 | Gate unknown, dirty tree, detached HEAD | refuses with the one exact fix; a dirty tree lists each `git status --porcelain` line and offers: commit them, `git stash -u`, remove them, or gitignore them |
 
-`--standalone "<words>"` is Scott's words, verbatim: the one legitimate way to ship a
+`--standalone "<words>"` is the owner's words, verbatim: the one legitimate way to ship a
 release whose diff is empty or version-only. Re-asking for this order is a violation --
-an agent runs this flag only when Scott already gave the words in this session; otherwise
+an agent runs this flag only when the owner already gave the words in this session; otherwise
 it should STOP and report. On a gated repo the words are printed as a
-`Standalone release ordered by Scott: "<words>"` line the `/pr:create` body must carry
+`Standalone release ordered by the owner: "<words>"` line the `/pr:create` body must carry
 (or commented on the PR when one is already open).
 
 Why bump does not open the PR: a PR opened inside the bump binary is invisible to the

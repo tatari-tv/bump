@@ -134,11 +134,11 @@ pub struct ReleaseArgs {
     #[arg(long, conflicts_with = "install")]
     pub no_install: bool,
 
-    /// Scott's standalone order, verbatim: the one legitimate way to ship a bump-only
+    /// The owner's standalone order, verbatim: the one legitimate way to ship a bump-only
     /// release (a branch/default whose diff is empty or version-only otherwise refuses).
     /// Printed as a line the `/pr:create` body must carry (gated) or printed (ungated).
     /// Re-asking for this order is
-    /// a violation -- an agent runs this flag only when Scott already gave the words in
+    /// a violation -- an agent runs this flag only when the owner already gave the words in
     /// this session.
     #[arg(long, value_name = "WORDS")]
     pub standalone: Option<String>,
@@ -233,13 +233,13 @@ fn get_release_help() -> String {
          \x20 gated, on default, clean, tagged: refuse \"bump rides a feature PR\", names \
          `--standalone`\n\
          \x20 gate unknown, dirty tree, detached HEAD: refuse with the one exact fix\n\n\
-         --standalone \"<words>\": Scott's words, verbatim -- the one legitimate way to ship \
+         --standalone \"<words>\": the owner's words, verbatim -- the one legitimate way to ship \
          a release whose diff is empty or version-only (an empty diff, or a tagged/clean \
          default with nothing new). On a tagged default this cuts (or reuses) a \
          bump-vX-Y-Z branch and runs the GATED flow, printing the words as a line the \
          /pr:create body must carry; \
          on an ungated tagged default the version commit itself is the release. Re-asking \
-         for this order is a violation: only pass it when Scott already gave the words in \
+         for this order is a violation: only pass it when the owner already gave the words in \
          this session; otherwise STOP and report.\n\n\
          CI WAIT: no tag exists until the pushed sha's check runs + legacy commit status are \
          all green (polled every 15s, up to --ci-timeout, default {ci_timeout}s). Red, \
@@ -727,10 +727,10 @@ mod tests {
 
     #[test]
     fn test_cli_release_standalone_flag() {
-        let cli = Cli::try_parse_from(["bump", "release", "--standalone", "his exact words"]).unwrap();
+        let cli = Cli::try_parse_from(["bump", "release", "--standalone", "the owner's exact words"]).unwrap();
         match cli.command {
             Some(Commands::Release(args)) => {
-                assert_eq!(args.standalone, Some("his exact words".to_string()));
+                assert_eq!(args.standalone, Some("the owner's exact words".to_string()));
             }
             other => panic!("expected Release, got {:?}", other),
         }

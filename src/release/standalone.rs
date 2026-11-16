@@ -1,4 +1,4 @@
-//! Scott's standalone order (`--standalone "<words>"`) and the bump-only branch test it is
+//! The owner's standalone order (`--standalone "<words>"`) and the bump-only branch test it is
 //! the one exception to (THE RULING 2026-07-03: the bump never rides alone; 2026-07-10: an
 //! explicit order is the exception).
 
@@ -68,7 +68,7 @@ fn bump_only(files: &[String], manifests: &[ManifestChange]) -> bool {
     manifests.iter().any(|m| m.version) && !manifests.iter().any(|m| m.other)
 }
 
-/// Gated, on the default branch, clean, HEAD == origin, with Scott's order: resolve the
+/// Gated, on the default branch, clean, HEAD == origin, with the owner's order: resolve the
 /// version the standalone PR releases and name its branch. Scoped to a TAGGED default: an
 /// untagged version there refuses naming `bump finish`.
 pub(super) fn classify_gated_standalone(dir: &Path, opts: &ReleaseOpts, default: String) -> Result<ReleaseState> {
@@ -105,7 +105,7 @@ pub(super) fn classify_gated_standalone(dir: &Path, opts: &ReleaseOpts, default:
 /// a prior run already cut it), then classify it like any feature branch from its actual
 /// diff and run that row. Existence alone proves nothing: an empty branch is the fresh
 /// standalone (`force` on the version commit), a version line is the branch's own bump, and
-/// work commits make it a feature branch the bump rides with. Scott's words are printed as
+/// work commits make it a feature branch the bump rides with. The owner's words are printed as
 /// a line the `/pr:create` body must carry (or commented on an already-open PR) in every
 /// case.
 pub(super) fn execute_gated_standalone<P: Pusher, I: Installer, R: Pr, C: Ci>(

@@ -71,11 +71,11 @@ const DEFAULT_INSTALL_COMMAND: &str = "cargo install --path .";
 /// and then run `bump finish`.
 const GATED_PAUSE_MESSAGE: &str = "merge the PR, then run: bump finish";
 
-/// The standalone door, appended to every refusal a bump-only release hits without Scott's
+/// The standalone door, appended to every refusal a bump-only release hits without the owner's
 /// order (design doc, "Refusal wording"). It names the door and forbids inventing an order,
 /// so no refusal says STOP without the one legitimate way through.
-pub(crate) const STANDALONE_DOOR: &str = "If Scott already ordered a standalone release in this session, re-run with \
-     `--standalone \"<his exact words>\"`. Otherwise STOP and report; do not invent an order.";
+pub(crate) const STANDALONE_DOOR: &str = "If the owner already ordered a standalone release in this session, re-run with \
+     `--standalone \"<the owner's exact words>\"`. Otherwise STOP and report; do not invent an order.";
 
 /// How the install step is resolved. Precedence (general.md): CLI override > config
 /// `install` > default (`cargo install --path .` iff a `Cargo.toml` is present) > skip.
@@ -100,7 +100,7 @@ pub struct ReleaseOpts {
     pub dry_run: bool,
     /// How to resolve the post-release install step.
     pub install: InstallChoice,
-    /// Scott's standalone order, verbatim (`--standalone "<words>"`). `None`: a bump-only
+    /// The owner's standalone order, verbatim (`--standalone "<words>"`). `None`: a bump-only
     /// release refuses. Printed whenever given: gated, as a line the `/pr:create` body must
     /// carry; ungated, as the audit trail.
     pub standalone: Option<String>,
@@ -144,7 +144,7 @@ pub struct ReleaseReport {
     pub install_command: Option<String>,
     /// True when this was a `-n` dry run (nothing was mutated).
     pub dry_run: bool,
-    /// The lines the body of the PR `/pr:create` must open carry, verbatim (Scott's
+    /// The lines the body of the PR `/pr:create` must open carry, verbatim (the owner's
     /// standalone order when given, then `Release: rides this PR (vX.Y.Z)`). Empty when an
     /// open PR already exists for the branch, and on any ungated / finish run. bump never
     /// opens the PR itself.
@@ -196,7 +196,7 @@ enum ReleaseState {
     Diverged { default: String },
     /// Ungated, nothing ahead, the version already tagged, no standalone order.
     Nothing { default: String },
-    /// Ungated, nothing ahead, the version already tagged, WITH Scott's standalone order:
+    /// Ungated, nothing ahead, the version already tagged, WITH the owner's standalone order:
     /// the version commit is the release (made with `force`, the tip carries the old tag).
     UngatedStandalone { target_tag: String, default: String },
     /// Dirty working tree; `files` are the `git status --porcelain` lines.
@@ -224,7 +224,7 @@ enum ReleaseState {
     },
     /// Gated, on a feature branch carrying work, the manifest carries a pending version
     /// with NO version line in the branch diff: inherited from origin/<default>. Bumps
-    /// again from the manifest version (Scott, 2026-09-26: "bump again").
+    /// again from the manifest version (the owner, 2026-09-26: "bump again").
     GatedInheritedPending {
         branch: String,
         default: String,
@@ -241,10 +241,10 @@ enum ReleaseState {
     /// Gated feature branch whose diff vs origin/<default> is empty or version lines only,
     /// with no standalone order: the bump never rides alone (THE RULING). REFUSE.
     GatedBumpOnlyBranch { branch: String, default: String },
-    /// Gated, on the default branch, clean, HEAD == origin, WITH Scott's order, but the
+    /// Gated, on the default branch, clean, HEAD == origin, WITH the owner's order, but the
     /// default carries an untagged (pending) version: that is `bump finish`'s job. REFUSE.
     GatedStandalonePending { pending: String, default: String },
-    /// Gated, on the default branch, clean, HEAD == origin, WITH Scott's standalone order:
+    /// Gated, on the default branch, clean, HEAD == origin, WITH the owner's standalone order:
     /// cut (or reuse) `branch` from origin/<default>, then the gated flow on it.
     GatedStandalone {
         branch: String,
@@ -624,8 +624,8 @@ pub fn release<P: Pusher, I: Installer, R: Pr, C: Ci>(
         && words.trim().is_empty()
     {
         bail!(
-            "--standalone needs Scott's words, verbatim; an empty order is no order.\n\
-             Re-run with --standalone \"<his exact words>\", or without --standalone."
+            "--standalone needs the owner's words, verbatim; an empty order is no order.\n\
+             Re-run with --standalone \"<the owner's exact words>\", or without --standalone."
         );
     }
     let config = config::load(dir)?;
@@ -811,7 +811,7 @@ fn classify_gated(dir: &Path, opts: &ReleaseOpts, current: &str) -> Result<Relea
             }
             // Stale local default: same fix as the ungated behind row.
             HeadRemote::Behind => Ok(ReleaseState::Behind { default }),
-            // Clean and in sync: Scott's order cuts the standalone branch; without it, bump
+            // Clean and in sync: the owner's order cuts the standalone branch; without it, bump
             // must ride a feature PR, not the default branch.
             HeadRemote::Equal if opts.standalone.is_some() => classify_gated_standalone(dir, opts, default),
             HeadRemote::Equal => Ok(ReleaseState::GatedDefaultClean { default }),
@@ -886,7 +886,7 @@ fn classify_gated_feature(dir: &Path, opts: &ReleaseOpts, branch: String, defaul
 
     // Fresh: version == last tag (or an initial release). Compute the target the requested
     // level yields via bump's own version rules (no re-derivation, no stdout parsing).
-    // A bump-only branch reaching here carries Scott's order and no manifest version line,
+    // A bump-only branch reaching here carries the owner's order and no manifest version line,
     // so its tip can be the already-tagged default tip: the one gated row whose version
     // commit needs `force`.
     let target_tag = compute_target_tag(dir, bump_type)?;
@@ -1418,7 +1418,7 @@ fn execute_gated<P: Pusher, I: Installer, R: Pr, C: Ci>(
     //    bump never opens the PR itself.
     let pr_body_lines = if ports.pr.open_pr_exists(dir, &branch)? {
         println!("open PR already exists for {branch}");
-        // That PR's body was written before this run, so Scott's order goes on as a comment.
+        // That PR's body was written before this run, so the owner's order goes on as a comment.
         if let Some(words) = opts.standalone.as_deref() {
             let order = standalone_order_line(words);
             ports.pr.comment_pr(dir, &branch, &order)?;
@@ -1499,11 +1499,11 @@ fn version_commit_to(dir: &Path, target: &Version) -> Result<()> {
     Ok(())
 }
 
-/// Print Scott's standalone order when one was given on an ungated row: the audit trail the
+/// Print the owner's standalone order when one was given on an ungated row: the audit trail the
 /// gated flow gets from the `/pr:create` body line.
 fn announce_order(opts: &ReleaseOpts) {
     if let Some(words) = &opts.standalone {
-        println!("Standalone release ordered by Scott: \"{words}\"");
+        println!("Standalone release ordered by the owner: \"{words}\"");
     }
 }
 

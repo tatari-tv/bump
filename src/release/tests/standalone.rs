@@ -1,4 +1,4 @@
-//! Scott's standalone order and the bump-only branch refusal it is the exception to.
+//! The owner's standalone order and the bump-only branch refusal it is the exception to.
 
 use super::*;
 
@@ -92,10 +92,10 @@ fn gated_standalone_cuts_tracking_branch_bumps_and_quotes_scott() {
     assert_eq!(
         report.pr_body_lines,
         vec![
-            format!("Standalone release ordered by Scott: \"{ORDER}\""),
+            format!("Standalone release ordered by the owner: \"{ORDER}\""),
             "Release: rides this PR (v0.1.6)".to_string(),
         ],
-        "the /pr:create body must carry Scott's words, then the release-intent line"
+        "the /pr:create body must carry the owner's words, then the release-intent line"
     );
     assert_eq!(*pusher.calls.borrow(), vec!["feature:bump-v0-1-6".to_string()]);
     assert_no_tag_anywhere(dir, "v0.1.6");
@@ -104,7 +104,7 @@ fn gated_standalone_cuts_tracking_branch_bumps_and_quotes_scott() {
 
 /// A `bump-vX-Y-Z` left by a prior run is checked out and classified by its own diff:
 /// empty -> the fresh standalone bump; its own version line -> no second bump; work
-/// commits -> a feature branch the bump rides with. Scott's words are quoted each time.
+/// commits -> a feature branch the bump rides with. The owner's words are quoted each time.
 #[test]
 fn gated_standalone_reuses_an_existing_branch_by_its_diff() {
     let _guard = crate::ENV_LOCK.lock().unwrap();
@@ -285,7 +285,7 @@ fn standalone_with_empty_words_refuses() {
     let err = ungated_release(dir, &standalone_opts(None, "  "), &pusher)
         .expect_err("empty words are no order")
         .to_string();
-    assert!(err.contains("--standalone needs Scott's words"), "got: {err}");
+    assert!(err.contains("--standalone needs the owner's words"), "got: {err}");
     assert_eq!(git::head_sha(dir).unwrap(), head);
     assert!(pusher.calls().is_empty());
     assert_no_tag_anywhere(dir, "v0.1.6");

@@ -480,7 +480,7 @@ fn auto_opts(bump_type: Option<BumpType>, dry_run: bool) -> ReleaseOpts {
     }
 }
 
-/// `auto_opts` carrying Scott's standalone order.
+/// `auto_opts` carrying the owner's standalone order.
 fn standalone_opts(bump_type: Option<BumpType>, words: &str) -> ReleaseOpts {
     ReleaseOpts {
         standalone: Some(words.to_string()),

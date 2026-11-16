@@ -63,7 +63,7 @@ fn finish_missed_bump_refuses_naming_the_standalone_door() {
         .to_string();
     assert!(err.contains("no untagged version"), "got: {err}");
     assert!(
-        err.contains("--standalone \"<his exact words>\""),
+        err.contains("--standalone \"<the owner's exact words>\""),
         "must name the door: {err}"
     );
     assert!(err.contains("do not invent an order"), "got: {err}");

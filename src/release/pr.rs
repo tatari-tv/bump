@@ -13,7 +13,7 @@ use std::path::Path;
 ///
 /// `open_pr_exists` is the Phase-0 open-PR probe (`gh pr list --head <branch> --state
 /// open --json number`, NOT `gh pr view`). `comment_pr` (`gh pr comment <branch> --body
-/// <body>`) records Scott's standalone order on a PR that was already open, whose body this
+/// <body>`) records the owner's standalone order on a PR that was already open, whose body this
 /// run never wrote. There is deliberately no create: `/pr:create` opens every PR.
 pub trait Pr {
     fn open_pr_exists(&self, dir: &Path, branch: &str) -> Result<bool>;
@@ -56,7 +56,7 @@ pub(super) fn release_intent_line(tag: &str) -> String {
     format!("Release: rides this PR ({tag})")
 }
 
-/// The lines the PR body must carry, in order, for the PR `/pr:create` opens: Scott's
+/// The lines the PR body must carry, in order, for the PR `/pr:create` opens: the owner's
 /// standalone order quoted verbatim when there is one, then the release-intent line.
 pub(super) fn pr_body_lines(tag: &str, standalone: Option<&str>) -> Vec<String> {
     let mut lines = Vec::new();
@@ -82,8 +82,8 @@ pub(super) fn pr_create_handoff(branch: &str, lines: &[String]) -> String {
     out
 }
 
-/// Scott's standalone order as it is quoted on the PR: a line the `/pr:create` body must
+/// The owner's standalone order as it is quoted on the PR: a line the `/pr:create` body must
 /// carry, or a comment on a PR that was already open.
 pub(super) fn standalone_order_line(words: &str) -> String {
-    format!("Standalone release ordered by Scott: \"{words}\"")
+    format!("Standalone release ordered by the owner: \"{words}\"")
 }

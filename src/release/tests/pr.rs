@@ -144,7 +144,7 @@ fn pr_body_lines_end_with_the_release_line() {
     assert_eq!(
         pr_body_lines("v0.1.6", Some("ship it")),
         vec![
-            "Standalone release ordered by Scott: \"ship it\"".to_string(),
+            "Standalone release ordered by the owner: \"ship it\"".to_string(),
             "Release: rides this PR (v0.1.6)".to_string(),
         ]
     );
@@ -166,12 +166,12 @@ fn pr_create_handoff_names_pr_create_and_prints_each_line_bare() {
         last_two,
         vec![
             "Release: rides this PR (v0.1.6)",
-            "Standalone release ordered by Scott: \"ship it\""
+            "Standalone release ordered by the owner: \"ship it\""
         ]
     );
 }
 
-/// Audit round 1, cheap-win 5: a gated run carrying Scott's standalone order on a branch
+/// Audit round 1, cheap-win 5: a gated run carrying the owner's standalone order on a branch
 /// whose PR is already open never writes a body, so the order goes onto that PR as a
 /// comment, verbatim, and no hand-off is printed. Without an order, nothing is commented.
 #[test]
@@ -214,7 +214,7 @@ fn standalone_order_is_commented_on_an_already_open_pr() {
         pr.comments(),
         vec![(
             "feature".to_string(),
-            "Standalone release ordered by Scott: \"ship it with the fix\"".to_string()
+            "Standalone release ordered by the owner: \"ship it with the fix\"".to_string()
         )]
     );
     assert!(bare.expect("the bare re-run pauses").paused);

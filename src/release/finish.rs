@@ -275,8 +275,8 @@ fn short_sha(sha: &str) -> String {
 fn missed_bump(default: &str) -> Result<ReleaseReport> {
     bail!(
         "no untagged version on {default}: bump never rode this merge, and bump rides a feature PR.\n\
-         If Scott already ordered a standalone release in this session, run bump release on {default} with \
-         `--standalone \"<his exact words>\"`. Otherwise STOP and report; do not invent an order."
+         If the owner already ordered a standalone release in this session, run bump release on {default} with \
+         `--standalone \"<the owner's exact words>\"`. Otherwise STOP and report; do not invent an order."
     )
 }
 
